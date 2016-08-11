@@ -14,8 +14,6 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
-
-
 my_conv = {FIELD_TYPE.LONG: int,FIELD_TYPE.TIMESTAMP: str}
 
 
@@ -34,7 +32,6 @@ class mysqlquery():
         if conn:
             cur =conn.cursor()
             if cur:
-                cur.execute('SET NAMES UTF8')
                 cur.execute(sql)
                 a = cur.fetchall()
                 cur.close()
@@ -139,7 +136,7 @@ def qcloud_project(data):
         for j in i:
             t.append(j)
         d.append(t)
-    print d
+
     for i in d:
         i[0] = int(i[0])
 
@@ -148,48 +145,6 @@ def qcloud_project(data):
         m.append(tuple(i))
 
     return m
-
-
-def trans_price(data,date):
-    d=[]
-    for i in data:
-        t=[]
-        for j in i:
-            t.append(j)
-        d.append(t)
-
-    m = []
-    for i in d:
-        t = []
-        t.append(str(i[0]))
-        t.append(date)
-        t.append(int(i[1]))
-        m.append(t)
-
-
-    d = []
-    for i in m:
-        d.append(tuple(i))
-
-    return d
-
-def money():
-    # qcloud_db(qcloud_price) ---> ledou_cmdd(project_cost)
-    date = '2016-08-01'
-    projectid = ['1000229', '1000230', '1000231', '1000232', '1000233', '1000234', '1000235', '1000236', '1000237', '1000238', '1000239', '1000240', '1000241', '1000247', '1000266', '1000293', '1000314', '1000325', '1000330', '1000346', '1000347', '1000363', '1000368', '1000380', '1000404', '1000497', '1000498', '1000499', '1000685', '0',  '1001183', '1001202', '1001391', '1002100', '1002220', '1002233',  '1002409', '1002542', '1002558', '1002603',  '1002761', '1002799']
-    for i in projectid:
-        price = mysqlquery("119.29.183.216", "qcloud", "qcloud", "qcloud", 3306)
-        sql_price = "select c.projectId,sum(price) as money  from (select a.instanceId,a.price,b.projectId from qcloud_cvm_price as a,qcloud_cvm as b where a.instanceId = b.UnInstanceId) as c where c.projectId =%s;" %i
-        result_price = price.select(sql_price)
-        print result_price
-        price_s = trans_price(result_price,date)
-        tb_cost = "server_costs"
-        tu_cost = "(projectId,date,money)"
-        sql_cost = sql_insert(tb_cost,tu_cost,price_s)
-
-        server_cost = mysqlquery("localhost","ledou","ledou","ledou_cmdb",3306)
-        server_cost.insert(sql_cost)
-
 
 
 
@@ -212,21 +167,15 @@ if __name__ == "__main__":
     # os.system('rm -rf qcloud_cvm.sql')
 
     # qcloud_db(qcloud_project) ---> ledou_cmdd(project_info)
-    # qp = mysqlquery("119.29.183.216", "qcloud", "qcloud", "qcloud", 3306)
-    # sql_qp = "select projectId,projectName from qcloud_project;"
-    # result_qp =  qp.select(sql_qp)
-    # project_s = qcloud_project(result_qp)
-    # tb = "project_info"
-    # tu = '(projectid,projectName)'
-    # sql_project = sql_insert(tb,tu,project_s)
-    # print sql_project
-    # project_info = mysqlquery("localhost","ledou","ledou","ledou_cmdb",3306)
-    # project_info.insert(sql_project)
-
-    money()
-
-
-
-
+    qp = mysqlquery("119.29.183.216", "qcloud", "qcloud", "qcloud", 3306)
+    sql_qp = "select projectId,projectName from qcloud_project;"
+    result_qp =  qp.select(sql_qp)
+    project_s = qcloud_project(result_qp)
+    tb = "project_info"
+    tu = '(projectid,projectName)'
+    sql_project = sql_insert(tb,tu,project_s)
+    print sql_project
+    project_info = mysqlquery("localhost","ledou","ledou","ledou_cmdb",3306)
+    project_info.insert(sql_project)
 
 
