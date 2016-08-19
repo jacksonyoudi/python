@@ -332,8 +332,8 @@ if __name__ == '__main__':
 
 
 
-    cvm_info()
-    project_info()
+#    cvm_info()
+ #   project_info()
     money()
 
 
